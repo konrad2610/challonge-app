@@ -2,12 +2,86 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import './App.css';
 
+function predicate() {
+  var fields = [];
+  var n_fields = arguments.length;
+  var field;
+  var name;
+  var cmp;
+
+  var default_cmp = function (a, b) {
+      if (a === b) return 0;
+      return a < b ? -1 : 1;
+  };
+  var getCmpFunc = function (primer, reverse) {
+      var dfc = default_cmp;
+      var cmp = default_cmp;
+      if (primer) {
+        cmp = function (a, b) {
+          return dfc(primer(a), primer(b));
+        };
+      }
+      if (reverse) {
+        return function (a, b) {
+          return -1 * cmp(a, b);
+        };
+      }
+      return cmp;
+  };
+
+  // preprocess sorting options
+  for (var i = 0; i < n_fields; i++) {
+    field = arguments[i];
+    if (typeof field === 'string') {
+      name = field;
+      cmp = default_cmp;
+    } else {
+      name = field.name;
+      cmp = getCmpFunc(field.primer, field.reverse);
+    }
+    fields.push({
+      name: name,
+      cmp: cmp
+    });
+  }
+
+  // final comparison function
+  return function (A, B) {
+    var name;
+    var result;
+
+    for (var i = 0; i < n_fields; i++) {
+      result = 0;
+      field = fields[i];
+      name = field.name;
+
+      result = field.cmp(A[name], B[name]);
+      if (result !== 0) break;
+    }
+    return result;
+  };
+}
+
+function roundNumber(num, scale) {
+  if(!("" + num).includes("e")) {
+    return +(Math.round(num + "e+" + scale)  + "e-" + scale);
+  } else {
+    var arr = ("" + num).split("e");
+    var sig = ""
+    if(+arr[1] + scale > 0) {
+      sig = "+";
+    }
+    return +(Math.round(+arr[0] + "e" + sig + (+arr[1] + scale)) + "e-" + scale);
+  }
+}
+
 const AnotherPage = () => <h1>Another Page</h1>;
 const NotFound = () => <h1>404 Not Found</h1>;
 class Home extends Component {
   state = {
     participantsWithMatches: '',
-    participants: ''
+    participants: '',
+    sortedMatchStats: ''
   };
 
   componentDidMount() {
@@ -24,6 +98,7 @@ class Home extends Component {
         }));
 
         console.log('participantsWithMatches Array', participantsWithMatches);
+        this.getMatchStats(participantsWithMatches);
         this.setState({ participantsWithMatches: participantsWithMatches });
       })
       .catch(err => console.log(err));
@@ -47,19 +122,105 @@ class Home extends Component {
     return body;
   };
 
+  getMatchStats = (participantsWithMatchesList) => {
+    if (typeof participantsWithMatchesList !== 'object') {
+      return null;
+    }
+
+    const matchStats = participantsWithMatchesList.map((participantWithMatches, i) => {
+      let wins = 0;
+      let draws = 0;
+      let loses = 0;
+      let completed = 0;
+      let open = 0;
+      let setWon = 0;
+      let setLoses = 0;
+      let pointsLoses = 0;
+      let pointsWon = 0;
+
+      participantWithMatches.matches.forEach((match, i) => {
+        const actualMatch = match.match;
+        if (actualMatch.state === 'complete') {
+          completed += 1;
+          
+          const setsArray = actualMatch.scores_csv.split(',');
+
+          setsArray.forEach((set, i) => {
+            const setArray = set.split('-');
+
+            if (actualMatch.player1_id === participantWithMatches.id) {
+              pointsWon += Number(setArray[0]);
+              pointsLoses += Number(setArray[1]);
+
+              if (Number(setArray[0]) === 8) {
+                setWon += 1;
+              }
+              if (Number(setArray[1]) === 8) {
+                setLoses += 1;
+              }
+
+            } else {
+              pointsWon += Number(setArray[1]);
+              pointsLoses += Number(setArray[0]);
+
+              if (Number(setArray[1]) === 8) {
+                setWon += 1;
+              }
+              if (Number(setArray[0]) === 8) {
+                setLoses += 1;
+              }
+            }
+          });
+
+          if (!actualMatch.winner_id) {
+            draws += 1;
+          } else if (actualMatch.winner_id === participantWithMatches.id) {
+            wins += 1;
+          } else {
+            loses += 1;
+          }
+        } else if (actualMatch.state === 'open') {
+          open += 1;
+        }
+      });
+
+      return {
+        name: participantWithMatches.name,
+        id: participantWithMatches.id,
+        wins,
+        loses,
+        draws,
+        completed,
+        open,
+        all: completed + open,
+        setLoses,
+        setWon,
+        pointsWon,
+        pointsLoses,
+        setRatio: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`
+      };
+    });
+
+    console.log('matchStats: ', matchStats);
+    const sortedMatchStats = matchStats.sort(predicate({name: 'wins', reverse: true}, 'loses'));
+    console.log('matchStats: ', matchStats);
+    this.setState({ sortedMatchStats: sortedMatchStats });
+    return sortedMatchStats;
+  };
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <p>
+        </header>
+        <p>
             Lista uczestników challonge'u:
           </p>
-          {typeof this.state.participantsWithMatches === 'object' ? this.state.participantsWithMatches.map((participantsWithMatches, i) => {
+          {typeof this.state.sortedMatchStats === 'object' ? this.state.sortedMatchStats.map((pStats, i) => {
               return (
-                  <p>{i+1}. {participantsWithMatches.name}, {participantsWithMatches.id}</p>
+                  <p>{i+1}. {pStats.name}, mecze: {pStats.completed - pStats.draws}/12, W-P: {pStats.wins}-{pStats.loses}, Set W-P: {pStats.setWon}-{pStats.setLoses}, Set Won Ratio: {pStats.setRatio}</p>
               );
           }) : ''}
-        </header>
       </div>
     );
   }
