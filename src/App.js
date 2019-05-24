@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import './App.css';
+import ResponsiveTable from './components/ResponsiveTable';
 
 function predicate() {
   var fields = [];
@@ -191,18 +192,29 @@ class Home extends Component {
         loses,
         draws,
         completed,
+        completedWithoutDraws: completed - draws,
+        completedWithoutDrawsString: `${completed - draws}/12`,
         open,
         all: completed + open,
         setLoses,
         setWon,
         pointsWon,
         pointsLoses,
+        pointsDifference: pointsWon - pointsLoses,
+        winLoseMatch: `${wins} - ${loses}`,
+        winLoseSet: `${setWon} - ${setLoses}`,
+        winLosePoints: `${pointsWon} - ${pointsLoses}`,
         setRatio: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`
       };
     });
 
     console.log('matchStats: ', matchStats);
-    const sortedMatchStats = matchStats.sort(predicate({name: 'wins', reverse: true}, 'loses'));
+    const sortedMatchStats = matchStats.sort(predicate(
+      {name: 'wins', reverse: true}, 
+      'loses', 
+      {name: 'setRatio', reverse: true},
+      {name: 'pointsDifference', reverse: true}
+    ));
     console.log('matchStats: ', matchStats);
     this.setState({ sortedMatchStats: sortedMatchStats });
     return sortedMatchStats;
@@ -212,15 +224,17 @@ class Home extends Component {
     return (
       <div className="App">
         <header className="App-header">
+        <ResponsiveTable columns={{
+          name: 'Drużyna', 
+          completedWithoutDrawsString: 'Rozegrane', 
+          open: 'Do rozegrania', 
+          winLoseMatch: 'Mecze W-P',
+          winLoseSet: 'Sety W-P',
+          setRatio: '% wygranych setów',
+          pointsDifference: 'Różnica punktów',
+          winLosePoints: 'Punkty W-P'
+          }} rows={this.state.sortedMatchStats} />
         </header>
-        <p>
-            Lista uczestników challonge'u:
-          </p>
-          {typeof this.state.sortedMatchStats === 'object' ? this.state.sortedMatchStats.map((pStats, i) => {
-              return (
-                  <p>{i+1}. {pStats.name}, mecze: {pStats.completed - pStats.draws}/12, W-P: {pStats.wins}-{pStats.loses}, Set W-P: {pStats.setWon}-{pStats.setLoses}, Set Won Ratio: {pStats.setRatio}</p>
-              );
-          }) : ''}
       </div>
     );
   }
