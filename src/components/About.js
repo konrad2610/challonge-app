@@ -4,21 +4,22 @@ class About extends Component {
 
   render() {
     return (
-      <div>
-        <h1 className='text-center page-title'>About</h1>
-        <p>This is a challonge application build on React.</p>
-        <p>Here are some of the tools used:</p>
-        <ul>
-          <li>
-            <a href='https://facebook.github.io/react'>React</a> - JavaScript framework.
-          </li>
-          <li>
-            <a href='https://api.challonge.com/pl/api.html'>Challonge API</a> - API to search for challonge tournament data.
-          </li>
-          <li>
-            <a href='https://github.com/konrad2610/challonge-app'>Repo</a> - Project repo.
-          </li>
-        </ul>
+      <div className='row'>
+        <div className='columns medium-6 large-4 small-centered'>
+          <h1 className='text-center page-title'>O aplikacji</h1>
+          <p>Lista wykorzystanych technologii:</p>
+          <ul>
+            <li>
+              <a href='https://facebook.github.io/react'>React</a> - Frontend
+            </li>
+            <li>
+              <a href='https://expressjs.com/'>Express (Node)</a> - Backend
+            </li>
+            <li>
+              <a href='https://api.challonge.com/pl/api.html'>Challonge API</a> - API do zabawy z danymi turniejów 'challonge'.
+            </li>
+          </ul>
+        </div>
       </div>
     );
   }

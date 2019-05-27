@@ -226,18 +226,17 @@ class Home extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-        <ResponsiveTable columns={{
+        <header className="App-header"></header>
+                <ResponsiveTable columns={{
           name: 'Drużyna', 
           completedWithoutDrawsString: 'Rozegrane', 
           open: 'Do rozegrania', 
           winLoseMatch: 'Mecze W-P',
           winLoseSet: 'Sety W-P',
-          setRatio: '% wygranych setów',
+          setRatio: 'Wygrane sety [%]',
           pointsDifference: 'Różnica punktów',
           winLosePoints: 'Punkty W-P'
           }} rows={this.state.sortedMatchStats} />
-        </header>
       </div>
     );
   }
@@ -247,15 +246,11 @@ const App = () => (
   <Router>
     <div>
       <Nav/>
-      <div className='row'>
-        <div className='columns medium-6 large-4 small-centered'>
-          <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/about" component={About} />
-            <Route component={NotFound} />
-          </Switch>
-        </div>
-      </div>
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route path="/about" component={About} />
+        <Route component={NotFound} />
+      </Switch>
     </div>
   </Router>
 );

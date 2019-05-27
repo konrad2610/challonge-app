@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 
 // Load Foundation
 import 'foundation-sites/dist/css/foundation.min.css';
+import 'foundation-sites/dist/css/foundation-float.min.css';
+import 'foundation-sites/dist/css/foundation-prototype.min.css';
+import 'foundation-sites/dist/css/foundation-rtl.min.css';
+
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';

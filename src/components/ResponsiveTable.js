@@ -31,14 +31,19 @@ class ResponsiveTable extends Component {
     
     render() {
       return (
-        <table className="responsive-table">
-          <thead>
-            {this._head()}
-          </thead>
-          <tbody>
-            {this._rows()}
-          </tbody>
-        </table>
+        <div className='row'>
+          <div className='columns medium-12 large-12 small-centered'>
+          <h1 className='text-center page-title'>Wyniki</h1>
+            <table className="responsive-card-table unstriped">
+              <thead>
+                {this._head()}
+              </thead>
+              <tbody>
+                {this._rows()}
+              </tbody>
+            </table>
+          </div>
+        </div>
       );
     }
 };

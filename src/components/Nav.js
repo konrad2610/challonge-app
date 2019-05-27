@@ -9,10 +9,10 @@ class Nav extends Component {
           <ul className='menu'>
             <li className='menu-text'>Challonge App</li>
             <li>
-              <Link to='/'>Results</Link>
+              <Link to='/'>Wyniki</Link>
             </li>
             <li>
-              <Link to='/about'>About</Link>
+              <Link to='/about'>O aplikacji</Link>
             </li>
           </ul>
         </div>
