@@ -58,6 +58,7 @@
     "express",
     "create-react-app",
     "react",
-    "challonge"
+    "challonge",
+    "foosball"
   ]
 }
