@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
 import './App.css';
+
 import ResponsiveTable from './components/ResponsiveTable';
+import About from './components/About';
+import Nav from './components/Nav';
+const NotFound = () => <h1>404 Not Found</h1>;
 
 function predicate() {
   var fields = [];
@@ -76,8 +81,6 @@ function roundNumber(num, scale) {
   }
 }
 
-const AnotherPage = () => <h1>Another Page</h1>;
-const NotFound = () => <h1>404 Not Found</h1>;
 class Home extends Component {
   state = {
     participantsWithMatches: '',
@@ -243,22 +246,16 @@ class Home extends Component {
 const App = () => (
   <Router>
     <div>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/another-page/">Another Page</Link>
-          </li>
-        </ul>
-      </nav>
-
-      <Switch>
-        <Route path="/" exact component={Home} />
-        <Route path="/another-page/" component={AnotherPage} />
-        <Route component={NotFound} />
-      </Switch>
+      <Nav/>
+      <div className='row'>
+        <div className='columns medium-6 large-4 small-centered'>
+          <Switch>
+            <Route path="/" exact component={Home} />
+            <Route path="/about" component={About} />
+            <Route component={NotFound} />
+          </Switch>
+        </div>
+      </div>
     </div>
   </Router>
 );
