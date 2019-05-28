@@ -24,7 +24,7 @@ class ResponsiveTable extends Component {
           );
         });
         return (
-          <tr><td data-label="LP">{lp+=1}</td>{values}</tr>
+          <tr><td data-label="Miejsce">{lp+=1}</td>{values}</tr>
         );
       }) : '';
     }
