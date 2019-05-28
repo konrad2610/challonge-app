@@ -28,7 +28,15 @@ code {
 }
 
 .responsive-card-table th {
+  background-color: #282c34;
+  color: #e6e6e6;
+  text-align: center;
+}
+
+.responsive-card-table tr,
+.responsive-card-table td {
   background-color: #e6e6e6;
+  color: #282c34;
   text-align: center;
 }
 
@@ -39,9 +47,6 @@ code {
 }
 
 @media screen and (max-width: 640px) {
-  .responsive-card-table {
-    
-  }
   .responsive-card-table thead tr {
     position: absolute;
     top: -9999em;

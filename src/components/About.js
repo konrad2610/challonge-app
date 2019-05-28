@@ -16,7 +16,7 @@ class About extends Component {
               <a href='https://expressjs.com/'>Express (Node)</a> - Backend
             </li>
             <li>
-              <a href='https://api.challonge.com/pl/api.html'>Challonge API</a> - API do zabawy z danymi turniejów 'challonge'.
+              <a href='https://api.challonge.com/pl/api.html'>Challonge API</a> - API do zabawy danymi turniejów zapisanych w serwisie Challonge.
             </li>
           </ul>
         </div>

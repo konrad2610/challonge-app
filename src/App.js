@@ -85,7 +85,8 @@ class Home extends Component {
   state = {
     participantsWithMatches: '',
     participants: '',
-    sortedMatchStats: ''
+    sortedMatchStats: '',
+    isLoading: true
   };
 
   componentDidMount() {
@@ -219,15 +220,18 @@ class Home extends Component {
       {name: 'pointsDifference', reverse: true}
     ));
     console.log('matchStats: ', matchStats);
-    this.setState({ sortedMatchStats: sortedMatchStats });
+    this.setState({ 
+      sortedMatchStats: sortedMatchStats,
+      isLoading: false
+    });
     return sortedMatchStats;
   };
 
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header"></header>
-                <ResponsiveTable columns={{
+  renderResponsiveTable() {
+    if (this.state.isLoading) {
+      return <h3 className='text-center page-title'>Trwa pobieranie wyników...</h3>;
+    } else if (this.state.sortedMatchStats) {
+      return <ResponsiveTable columns={{
           name: 'Drużyna', 
           completedWithoutDrawsString: 'Rozegrane', 
           open: 'Do rozegrania', 
@@ -236,7 +240,15 @@ class Home extends Component {
           setRatio: 'Wygrane sety [%]',
           pointsDifference: 'Różnica punktów',
           winLosePoints: 'Punkty W-P'
-          }} rows={this.state.sortedMatchStats} />
+        }} rows={this.state.sortedMatchStats} />;
+    }
+  };
+
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header"></header>
+        {this.renderResponsiveTable()}
       </div>
     );
   }
