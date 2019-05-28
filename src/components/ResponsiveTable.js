@@ -20,7 +20,7 @@ class ResponsiveTable extends Component {
       return (typeof _this.props.rows === 'object') ? _this.props.rows.map(function(row) {
         var values = Object.keys(_this.props.columns).map(function(colName, colKey) {
           return (
-            <td data-label={colName}>{row[colName]}</td>
+            <td data-label={_this.props.columns[colName]}>{row[colName]}</td>
           );
         });
         return (
