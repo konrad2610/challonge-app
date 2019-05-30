@@ -73,6 +73,7 @@ code {
     border-bottom: 1px solid #0a0a0a;
     padding-left: 50%;
     position: relative;
+    text-align: left;
   }
   .responsive-card-table td:before {
     content: attr(data-label);

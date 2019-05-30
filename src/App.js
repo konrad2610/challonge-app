@@ -95,7 +95,6 @@ class Home extends Component {
   componentDidMount() {
     this.getChallongeParticipants()
       .then((res) => {
-        console.log('all participants', res.data);
         this.setState({ participants: res.data });
         return res.data;
       })
@@ -246,7 +245,7 @@ class Home extends Component {
         first: str.slice(0, splitIndex),
         second: str.slice(splitIndex)
       };
-    };
+    }
 
     const individualStats = individualPlayersList.map((individualPlayer, i) => {
       const individualPlayerName = splitString(individualPlayer, 2).first;
@@ -307,8 +306,7 @@ class Home extends Component {
       {name: 'setRatio', reverse: true},
       {name: 'pointsDifference', reverse: true}
     ));
-  
-    console.log('sortedIndividualStats: ', sortedIndividualStats);
+
     this.setState({ 
       sortedIndividualStats: sortedIndividualStats,
       isIndividualStatsLoading: false
@@ -374,7 +372,6 @@ class Home extends Component {
       matchRatio: `${roundNumber(100 * (completed - draws) / (completed - draws + open), 2)}%`
     }];
 
-    console.log('summaryStats: ', summaryStats);
     this.setState({
       summaryStats: summaryStats
     });
