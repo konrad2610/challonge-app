@@ -33,7 +33,7 @@ class ResponsiveTable extends Component {
       return (
         <div className='row'>
           <div className='columns medium-12 large-12 small-centered'>
-          <h1 className='text-center page-title'>Wyniki</h1>
+          <h1 className='text-center page-title'>{this.props.title}</h1>
             <table className="responsive-card-table unstriped">
               <thead>
                 {this._head()}

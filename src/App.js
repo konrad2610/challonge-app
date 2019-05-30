@@ -86,7 +86,9 @@ class Home extends Component {
     participantsWithMatches: '',
     participants: '',
     sortedMatchStats: '',
-    isLoading: true
+    sortedIndividualStats: '',
+    isLoading: true,
+    isIndividualStatsLoading: true
   };
 
   componentDidMount() {
@@ -102,9 +104,13 @@ class Home extends Component {
           return participantWithMatches.data.participant;
         }));
 
-        console.log('participantsWithMatches Array', participantsWithMatches);
-        this.getMatchStats(participantsWithMatches);
         this.setState({ participantsWithMatches: participantsWithMatches });
+        return this.getMatchStats(participantsWithMatches);
+      })
+      .then((sortedMatchStats) => {
+        this.getIndividualStats([
+          'Konrad', 'Fabian', 'Bartek', 'Krzysiek', 'Angelika', 'Szczepan'
+        ], sortedMatchStats);
       })
       .catch(err => console.log(err));
   }
@@ -212,14 +218,13 @@ class Home extends Component {
       };
     });
 
-    console.log('matchStats: ', matchStats);
     const sortedMatchStats = matchStats.sort(predicate(
       {name: 'wins', reverse: true}, 
       'loses', 
       {name: 'setRatio', reverse: true},
       {name: 'pointsDifference', reverse: true}
     ));
-    console.log('matchStats: ', matchStats);
+  
     this.setState({ 
       sortedMatchStats: sortedMatchStats,
       isLoading: false
@@ -227,11 +232,91 @@ class Home extends Component {
     return sortedMatchStats;
   };
 
+  getIndividualStats = (individualPlayersList, sortedMatchStatsList) => {
+    if (typeof sortedMatchStatsList !== 'object') {
+      return null;
+    }
+
+    function splitString(str, splitIndex = Math.ceil(str.length / 2)) {
+      return {
+        first: str.slice(0, splitIndex),
+        second: str.slice(splitIndex)
+      };
+    };
+
+    const individualStats = individualPlayersList.map((individualPlayer, i) => {
+      const individualPlayerName = splitString(individualPlayer, 2).first;
+      let wins = 0;
+      let draws = 0;
+      let loses = 0;
+      let completed = 0;
+      let open = 0;
+      let setWon = 0;
+      let setLoses = 0;
+      let pointsLoses = 0;
+      let pointsWon = 0;
+
+      sortedMatchStatsList.forEach((oneTeamMatchStats, i) => {
+        const currentPlayersNames = splitString(oneTeamMatchStats.name);
+        const firstPlayerName = currentPlayersNames.first;
+        const secondPlayerName = currentPlayersNames.second;
+        
+        if (firstPlayerName === individualPlayerName || secondPlayerName === individualPlayerName) {
+          wins += oneTeamMatchStats.wins;
+          draws += oneTeamMatchStats.draws;
+          loses += oneTeamMatchStats.loses;
+          completed += oneTeamMatchStats.completed;
+          open += oneTeamMatchStats.open;
+          setWon += oneTeamMatchStats.setWon;
+          setLoses += oneTeamMatchStats.setLoses;
+          pointsLoses += oneTeamMatchStats.pointsLoses;
+          pointsWon += oneTeamMatchStats.pointsWon;
+        }
+
+      });
+
+      return {
+        name: individualPlayer,
+        wins,
+        loses,
+        draws,
+        completed,
+        completedWithoutDraws: completed - draws,
+        completedWithoutDrawsString: `${completed - draws}/120`,
+        open,
+        all: completed + open,
+        setLoses,
+        setWon,
+        pointsWon,
+        pointsLoses,
+        pointsDifference: pointsWon - pointsLoses,
+        winLoseMatch: `${wins} - ${loses}`,
+        winLoseSet: `${setWon} - ${setLoses}`,
+        winLosePoints: `${pointsWon} - ${pointsLoses}`,
+        setRatio: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`
+      };
+    });
+
+    const sortedIndividualStats = individualStats.sort(predicate(
+      {name: 'wins', reverse: true}, 
+      'loses', 
+      {name: 'setRatio', reverse: true},
+      {name: 'pointsDifference', reverse: true}
+    ));
+  
+    console.log('sortedIndividualStats: ', sortedIndividualStats);
+    this.setState({ 
+      sortedIndividualStats: sortedIndividualStats,
+      isIndividualStatsLoading: false
+    });
+    return sortedIndividualStats;
+  };
+
   renderResponsiveTable() {
     if (this.state.isLoading) {
-      return <h3 className='text-center page-title'>Trwa pobieranie wyników...</h3>;
+      return <h3 className='text-center page-title'>Trwa pobieranie wyników drużynowych...</h3>;
     } else if (this.state.sortedMatchStats) {
-      return <ResponsiveTable columns={{
+      return <ResponsiveTable title={'Wyniki drużynowe'} columns={{
           name: 'Drużyna', 
           completedWithoutDrawsString: 'Rozegrane', 
           open: 'Do rozegrania', 
@@ -244,11 +329,29 @@ class Home extends Component {
     }
   };
 
+  renderIndividualStatsResponsiveTable() {
+    if (this.state.isIndividualStatsLoading) {
+      return <h3 className='text-center page-title'>Trwa pobieranie wyników indywidualnych...</h3>;
+    } else if (this.state.sortedIndividualStats) {
+      return <ResponsiveTable title={'Wyniki indywidualne'} columns={{
+          name: 'Zawodnik', 
+          completedWithoutDrawsString: 'Rozegrane', 
+          open: 'Do rozegrania', 
+          winLoseMatch: 'Mecze W-P',
+          winLoseSet: 'Sety W-P',
+          setRatio: 'Wygrane sety [%]',
+          pointsDifference: 'Różnica punktów',
+          winLosePoints: 'Punkty W-P'
+        }} rows={this.state.sortedIndividualStats} />;
+    }
+  };
+
   render() {
     return (
       <div className="App">
         <header className="App-header"></header>
         {this.renderResponsiveTable()}
+        {this.renderIndividualStatsResponsiveTable()}
       </div>
     );
   }
