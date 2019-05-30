@@ -392,8 +392,8 @@ class Home extends Component {
           winLoseMatch: 'Mecze W-P',
           winLoseSet: 'Sety W-P',
           setRatio: 'Wygrane sety [%]',
-          pointsDifference: 'Różnica punktów',
-          winLosePoints: 'Punkty W-P'
+          pointsDifference: 'Różnica bramek',
+          winLosePoints: 'Bramki'
         }} rows={this.state.sortedMatchStats} />;
     }
   };
@@ -409,8 +409,8 @@ class Home extends Component {
           winLoseMatch: 'Mecze W-P',
           winLoseSet: 'Sety W-P',
           setRatio: 'Wygrane sety [%]',
-          pointsDifference: 'Różnica punktów',
-          winLosePoints: 'Punkty W-P'
+          pointsDifference: 'Różnica bramek',
+          winLosePoints: 'Bramki'
         }} rows={this.state.sortedIndividualStats} />;
     }
   };
