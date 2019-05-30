@@ -87,6 +87,7 @@ class Home extends Component {
     participants: '',
     sortedMatchStats: '',
     sortedIndividualStats: '',
+    summaryStats: '',
     isLoading: true,
     isIndividualStatsLoading: true
   };
@@ -108,9 +109,12 @@ class Home extends Component {
         return this.getMatchStats(participantsWithMatches);
       })
       .then((sortedMatchStats) => {
-        this.getIndividualStats([
+        return this.getIndividualStats([
           'Konrad', 'Fabian', 'Bartek', 'Krzysiek', 'Angelika', 'Szczepan'
         ], sortedMatchStats);
+      })
+      .then((sortedIndividualStats) => {
+        this.getSummaryStats(sortedIndividualStats);
       })
       .catch(err => console.log(err));
   }
@@ -312,6 +316,71 @@ class Home extends Component {
     return sortedIndividualStats;
   };
 
+  getSummaryStats = (sortedIndividualStats) => {
+    if (typeof sortedIndividualStats !== 'object') {
+      return null;
+    }
+
+    let wins = 0;
+    let draws = 0;
+    let loses = 0;
+    let completed = 0;
+    let open = 0;
+    let setWon = 0;
+    let setLoses = 0;
+    let pointsLoses = 0;
+    let pointsWon = 0;
+
+    sortedIndividualStats.forEach((individualStats, i) => {
+      wins += individualStats.wins;
+      draws += individualStats.draws;
+      loses += individualStats.loses;
+      completed += individualStats.completed;
+      open += individualStats.open;
+      setWon += individualStats.setWon;
+      setLoses += individualStats.setLoses;
+      pointsLoses += individualStats.pointsLoses;
+      pointsWon += individualStats.pointsWon;
+    });
+
+    wins /= 4;
+    draws /= 4;
+    loses /= 4;
+    completed /= 4;
+    open /= 4;
+    setWon /= 2;
+    setLoses /= 2;
+    pointsLoses /= 2;
+    pointsWon /= 2;
+
+    const summaryStats = [{
+      wins,
+      loses,
+      draws,
+      completed,
+      completedWithoutDraws: completed - draws,
+      completedWithoutDrawsString: `${completed - draws}/180`,
+      open,
+      all: completed + open,
+      setLoses,
+      setWon,
+      pointsWon,
+      pointsLoses,
+      pointsDifference: pointsWon - pointsLoses,
+      winLoseMatch: `${wins} - ${loses}`,
+      winLoseSet: `${setWon} - ${setLoses}`,
+      winLosePoints: `${pointsWon} - ${pointsLoses}`,
+      setRatio: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`,
+      matchRatio: `${roundNumber(100 * (completed - draws) / (completed - draws + open), 2)}%`
+    }];
+
+    console.log('summaryStats: ', summaryStats);
+    this.setState({
+      summaryStats: summaryStats
+    });
+    return summaryStats;
+  };
+
   renderResponsiveTable() {
     if (this.state.isLoading) {
       return <h3 className='text-center page-title'>Trwa pobieranie wyników drużynowych...</h3>;
@@ -346,12 +415,25 @@ class Home extends Component {
     }
   };
 
+  renderSummaryStatsResponsiveTable() {
+    if (this.state.summaryStats) {
+      return <ResponsiveTable title={'Podsumowanie'} columns={{
+          matchRatio: 'Progres turnieju',
+          completedWithoutDrawsString: 'Rozegrane',
+          open: 'Do rozegrania',
+          setWon: 'Sety rozegrane',
+          pointsWon: 'Strzelone bramki'
+        }} rows={this.state.summaryStats} />;
+    }
+  };
+
   render() {
     return (
       <div className="App">
         <header className="App-header"></header>
         {this.renderResponsiveTable()}
         {this.renderIndividualStatsResponsiveTable()}
+        {this.renderSummaryStatsResponsiveTable()}
       </div>
     );
   }

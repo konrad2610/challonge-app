@@ -4,7 +4,7 @@ class ResponsiveTable extends Component {
     _head() {
       return (
         <tr>
-            <th>Miejsce</th>
+            {this.props.rows.length > 1 ? <th>Miejsce</th> : ''}
             {Object.entries(this.props.columns).map(([colKey, colName]) => {
               return (
                   <th>{colName}</th>
@@ -24,7 +24,7 @@ class ResponsiveTable extends Component {
           );
         });
         return (
-          <tr><td data-label="Miejsce">{lp+=1}</td>{values}</tr>
+          <tr>{_this.props.rows.length > 1 ? <td data-label="Miejsce">{lp+=1}</td> : ''}{values}</tr>
         );
       }) : '';
     }
