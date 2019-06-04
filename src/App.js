@@ -384,7 +384,7 @@ class Home extends Component {
     } else if (this.state.sortedMatchStats) {
       return <ResponsiveTable title={'Wyniki drużynowe'} columns={{
           name: 'Drużyna', 
-          completedWithoutDrawsString: 'Rozegrane', 
+          completedWithoutDraws: 'Rozegrane',
           open: 'Do rozegrania', 
           winLoseMatch: 'Mecze W-P',
           winLoseSet: 'Sety W-P',
@@ -401,7 +401,7 @@ class Home extends Component {
     } else if (this.state.sortedIndividualStats) {
       return <ResponsiveTable title={'Wyniki indywidualne'} columns={{
           name: 'Zawodnik', 
-          completedWithoutDrawsString: 'Rozegrane', 
+          completedWithoutDraws: 'Rozegrane',
           open: 'Do rozegrania', 
           winLoseMatch: 'Mecze W-P',
           winLoseSet: 'Sety W-P',
@@ -416,7 +416,7 @@ class Home extends Component {
     if (this.state.summaryStats) {
       return <ResponsiveTable title={'Podsumowanie'} columns={{
           matchRatio: 'Progres turnieju',
-          completedWithoutDrawsString: 'Rozegrane',
+          completedWithoutDraws: 'Rozegrane',
           open: 'Do rozegrania',
           setWon: 'Sety rozegrane',
           pointsWon: 'Strzelone bramki'
