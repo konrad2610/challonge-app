@@ -311,7 +311,7 @@ export const getCombinedMatchStats = (combinedTeamsList, sortedMatchStatsList) =
       });
 
       return {
-        name: `${firstTeamName}/${secondTeamName}`,
+        name: `${firstTeamName}-${secondTeamName}`,
         wins,
         wins2to1,
         loses,
