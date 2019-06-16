@@ -151,11 +151,15 @@ class Home extends Component {
       let setLoses = 0;
       let pointsLoses = 0;
       let pointsWon = 0;
+      let wins2to1 = 0;
+      let loses1to2 = 0;
 
       participantWithMatches.matches.forEach((match, i) => {
         const actualMatch = match.match;
         if (actualMatch.state === 'complete') {
           completed += 1;
+          let currentMatchSetWon = 0;
+          let currentMatchSetLost = 0;
           
           const setsArray = actualMatch.scores_csv.split(',');
 
@@ -168,9 +172,11 @@ class Home extends Component {
 
               if (Number(setArray[0]) === 8) {
                 setWon += 1;
+                currentMatchSetWon += 1;
               }
               if (Number(setArray[1]) === 8) {
                 setLoses += 1;
+                currentMatchSetLost += 1;
               }
 
             } else {
@@ -179,9 +185,11 @@ class Home extends Component {
 
               if (Number(setArray[1]) === 8) {
                 setWon += 1;
+                currentMatchSetWon += 1;
               }
               if (Number(setArray[0]) === 8) {
                 setLoses += 1;
+                currentMatchSetLost += 1;
               }
             }
           });
@@ -190,8 +198,16 @@ class Home extends Component {
             draws += 1;
           } else if (actualMatch.winner_id === participantWithMatches.id) {
             wins += 1;
+
+            if (currentMatchSetLost === 1) {
+              wins2to1 += 1;
+            }
           } else {
             loses += 1;
+
+            if (currentMatchSetWon === 1) {
+              loses1to2 += 1;
+            }
           }
         } else if (actualMatch.state === 'open') {
           open += 1;
@@ -202,7 +218,9 @@ class Home extends Component {
         name: participantWithMatches.name,
         id: participantWithMatches.id,
         wins,
+        wins2to1,
         loses,
+        loses1to2,
         draws,
         completed,
         completedWithoutDraws: completed - draws,
@@ -214,10 +232,13 @@ class Home extends Component {
         pointsWon,
         pointsLoses,
         pointsDifference: pointsWon - pointsLoses,
+        pointsRatio: roundNumber(pointsWon / pointsLoses, 3),
         winLoseMatch: `${wins} - ${loses}`,
+        extendedWinLoseMatch: `${wins} (${wins2to1}) - ${loses} (${loses1to2})`,
         winLoseSet: `${setWon} - ${setLoses}`,
         winLosePoints: `${pointsWon} - ${pointsLoses}`,
-        setRatio: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`
+        setPercent: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`,
+        setRatio: roundNumber(setWon / setLoses, 3)
       };
     });
 
@@ -250,8 +271,10 @@ class Home extends Component {
     const individualStats = individualPlayersList.map((individualPlayer, i) => {
       const individualPlayerName = splitString(individualPlayer, 2).first;
       let wins = 0;
+      let wins2to1 = 0;
       let draws = 0;
       let loses = 0;
+      let loses1to2 = 0;
       let completed = 0;
       let open = 0;
       let setWon = 0;
@@ -266,8 +289,10 @@ class Home extends Component {
         
         if (firstPlayerName === individualPlayerName || secondPlayerName === individualPlayerName) {
           wins += oneTeamMatchStats.wins;
+          wins2to1 += oneTeamMatchStats.wins2to1;
           draws += oneTeamMatchStats.draws;
           loses += oneTeamMatchStats.loses;
+          loses1to2 += oneTeamMatchStats.loses1to2;
           completed += oneTeamMatchStats.completed;
           open += oneTeamMatchStats.open;
           setWon += oneTeamMatchStats.setWon;
@@ -281,7 +306,9 @@ class Home extends Component {
       return {
         name: individualPlayer,
         wins,
+        wins2to1,
         loses,
+        loses1to2,
         draws,
         completed,
         completedWithoutDraws: completed - draws,
@@ -293,10 +320,13 @@ class Home extends Component {
         pointsWon,
         pointsLoses,
         pointsDifference: pointsWon - pointsLoses,
+        pointsRatio: roundNumber(pointsWon / pointsLoses, 3),
         winLoseMatch: `${wins} - ${loses}`,
+        extendedWinLoseMatch: `${wins} (${wins2to1}) - ${loses} (${loses1to2})`,
         winLoseSet: `${setWon} - ${setLoses}`,
         winLosePoints: `${pointsWon} - ${pointsLoses}`,
-        setRatio: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`
+        setPercent: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`,
+        setRatio: roundNumber(setWon / setLoses, 3)
       };
     });
 
@@ -365,11 +395,13 @@ class Home extends Component {
       pointsWon,
       pointsLoses,
       pointsDifference: pointsWon - pointsLoses,
+      pointsRatio: roundNumber(pointsWon / pointsLoses, 3),
       winLoseMatch: `${wins} - ${loses}`,
       winLoseSet: `${setWon} - ${setLoses}`,
       winLosePoints: `${pointsWon} - ${pointsLoses}`,
-      setRatio: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`,
-      matchRatio: `${roundNumber(100 * (completed - draws) / (completed - draws + open), 2)}%`
+      setPercent: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`,
+      matchRatio: `${roundNumber(100 * (completed - draws) / (completed - draws + open), 2)}%`,
+      setRatio: roundNumber(setWon / setLoses, 3)
     }];
 
     this.setState({
@@ -380,44 +412,42 @@ class Home extends Component {
 
   renderResponsiveTable() {
     if (this.state.isLoading) {
-      return <h3 className='text-center page-title'>Trwa pobieranie wyników drużynowych...</h3>;
+      return <h3 className='text-center page-title'>Trwa pobieranie wyników turnieju...</h3>;
     } else if (this.state.sortedMatchStats) {
       return <ResponsiveTable title={'Wyniki drużynowe'} columns={{
           name: 'Drużyna', 
-          completedWithoutDraws: 'Rozegrane',
-          open: 'Do rozegrania', 
-          winLoseMatch: 'Mecze W-P',
+          completedWithoutDraws: 'Mecze (z 12)',
+          extendedWinLoseMatch: 'Mecze W(2:1) - P(1:2)',
           winLoseSet: 'Sety W-P',
-          setRatio: 'Wygrane sety [%]',
-          pointsDifference: 'Różnica bramek',
-          winLosePoints: 'Bramki'
+          setRatio: 'Sety Ratio',
+          winLosePoints: 'Bramki',
+          pointsRatio: 'Bramki Ratio',
         }} rows={this.state.sortedMatchStats} />;
     }
   };
 
   renderIndividualStatsResponsiveTable() {
     if (this.state.isIndividualStatsLoading) {
-      return <h3 className='text-center page-title'>Trwa pobieranie wyników indywidualnych...</h3>;
+      return '';
     } else if (this.state.sortedIndividualStats) {
       return <ResponsiveTable title={'Wyniki indywidualne'} columns={{
           name: 'Zawodnik', 
-          completedWithoutDraws: 'Rozegrane',
-          open: 'Do rozegrania', 
-          winLoseMatch: 'Mecze W-P',
+          completedWithoutDraws: 'Mecze (ze 120)',
+          extendedWinLoseMatch: 'Mecze W(2:1) - P(1:2)',
           winLoseSet: 'Sety W-P',
-          setRatio: 'Wygrane sety [%]',
-          pointsDifference: 'Różnica bramek',
-          winLosePoints: 'Bramki'
+          setRatio: 'Sety Ratio',
+          winLosePoints: 'Bramki',
+          pointsRatio: 'Bramki Ratio'
         }} rows={this.state.sortedIndividualStats} />;
     }
   };
 
   renderSummaryStatsResponsiveTable() {
     if (this.state.summaryStats) {
-      return <ResponsiveTable title={'Podsumowanie'} columns={{
+      return <ResponsiveTable title={'Ogólne'} columns={{
           matchRatio: 'Progres turnieju',
-          completedWithoutDraws: 'Rozegrane',
-          open: 'Do rozegrania',
+          completedWithoutDraws: 'Mecze rozegrane',
+          open: 'Mecze do rozegrania',
           setWon: 'Sety rozegrane',
           pointsWon: 'Strzelone bramki'
         }} rows={this.state.summaryStats} />;
