@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import './App.css';
-import { getMatchStats, getIndividualStats, getSummaryStats} from './utils/stats';
+import { getMatchStats, getIndividualStats, getCombinedMatchStats, getSummaryStats} from './utils/stats';
 
 import ResponsiveTable from './components/ResponsiveTable';
 import About from './components/About';
@@ -44,16 +44,34 @@ class Home extends Component {
         const sortedIndividualStats = getIndividualStats([
           'Konrad', 'Fabian', 'Bartek', 'Krzysiek', 'Angelika', 'Szczepan'
         ], sortedMatchStats);
+        const sortedCombinedMatchStats = getCombinedMatchStats([
+          ['AnKo', 'KoAn'],
+          ['SzKo', 'KoSz'],
+          ['BaKo', 'KoBa'],
+          ['KrKo', 'KoKr'],
+          ['FaKo', 'KoFa'],
+          ['AnFa', 'FaAn'],
+          ['SzFa', 'FaSz'],
+          ['BaFa', 'FaBa'],
+          ['KrFa', 'FaKr'],
+          ['AnKr', 'KrAn'],
+          ['SzKr', 'KrSz'],
+          ['BaKr', 'KrBa'],
+          ['AnBa', 'BaAn'],
+          ['SzBa', 'BaSz'],
+          ['AnSz', 'SzAn']
+        ], sortedMatchStats);
         
         this.setState({ 
           sortedIndividualStats: sortedIndividualStats,
+          sortedCombinedMatchStats: sortedCombinedMatchStats,
           isIndividualStatsLoading: false
         });
         return sortedIndividualStats
       })
       .then((sortedIndividualStats) => {
         const summaryStats = getSummaryStats(sortedIndividualStats);
-
+ 
         this.setState({
           summaryStats: summaryStats
         });
@@ -112,6 +130,22 @@ class Home extends Component {
     }
   };
 
+  renderCombinedMatchStatsResponsiveTable() {
+    if (this.state.isIndividualStatsLoading) {
+      return '';
+    } else if (this.state.sortedCombinedMatchStats) {
+      return <ResponsiveTable title={'Wyniki drużynowe - łączone'} columns={{
+          name: 'Drużyna', 
+          completedWithoutDraws: 'Mecze (z 24)',
+          extendedWinLoseMatch: 'Mecze W(2:1) - P(1:2)',
+          winLoseSet: 'Sety W-P',
+          setRatio: 'Sety Ratio',
+          winLosePoints: 'Bramki',
+          pointsRatio: 'Bramki Ratio'
+        }} rows={this.state.sortedCombinedMatchStats} />;
+    }
+  };
+
   renderSummaryStatsResponsiveTable() {
     if (this.state.summaryStats) {
       return <ResponsiveTable title={'Ogólne'} columns={{
@@ -130,6 +164,7 @@ class Home extends Component {
         <header className="App-header"></header>
         {this.renderResponsiveTable()}
         {this.renderIndividualStatsResponsiveTable()}
+        {this.renderCombinedMatchStatsResponsiveTable()}
         {this.renderSummaryStatsResponsiveTable()}
       </div>
     );

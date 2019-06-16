@@ -271,6 +271,82 @@ export const getIndividualStats = (individualPlayersList, sortedMatchStatsList) 
     return sortedIndividualStats;
 };
 
+export const getCombinedMatchStats = (combinedTeamsList, sortedMatchStatsList) => {
+    if (typeof sortedMatchStatsList !== 'object') {
+      return null;
+    }
+
+    const combinedMatchStats = combinedTeamsList.map((combinedTeamNames, i) => {
+      const firstTeamName = combinedTeamNames[0];
+      const secondTeamName = combinedTeamNames[1];
+      let wins = 0;
+      let wins2to1 = 0;
+      let draws = 0;
+      let loses = 0;
+      let loses1to2 = 0;
+      let completed = 0;
+      let open = 0;
+      let setWon = 0;
+      let setLoses = 0;
+      let pointsLoses = 0;
+      let pointsWon = 0;
+
+      sortedMatchStatsList.forEach((oneTeamMatchStats, i) => {
+        const currentTeamName = oneTeamMatchStats.name;
+        
+        if (firstTeamName === currentTeamName || secondTeamName === currentTeamName) {
+          wins += oneTeamMatchStats.wins;
+          wins2to1 += oneTeamMatchStats.wins2to1;
+          draws += oneTeamMatchStats.draws;
+          loses += oneTeamMatchStats.loses;
+          loses1to2 += oneTeamMatchStats.loses1to2;
+          completed += oneTeamMatchStats.completed;
+          open += oneTeamMatchStats.open;
+          setWon += oneTeamMatchStats.setWon;
+          setLoses += oneTeamMatchStats.setLoses;
+          pointsLoses += oneTeamMatchStats.pointsLoses;
+          pointsWon += oneTeamMatchStats.pointsWon;
+        }
+
+      });
+
+      return {
+        name: `${firstTeamName}/${secondTeamName}`,
+        wins,
+        wins2to1,
+        loses,
+        loses1to2,
+        draws,
+        completed,
+        completedWithoutDraws: completed - draws,
+        completedWithoutDrawsString: `${completed - draws}/120`,
+        open,
+        all: completed + open,
+        setLoses,
+        setWon,
+        pointsWon,
+        pointsLoses,
+        pointsDifference: pointsWon - pointsLoses,
+        pointsRatio: roundNumber(pointsWon / pointsLoses, 3),
+        winLoseMatch: `${wins} - ${loses}`,
+        extendedWinLoseMatch: `${wins} (${wins2to1}) - ${loses} (${loses1to2})`,
+        winLoseSet: `${setWon} - ${setLoses}`,
+        winLosePoints: `${pointsWon} - ${pointsLoses}`,
+        setPercent: `${roundNumber(100 * setWon / (setWon + setLoses), 2)}%`,
+        setRatio: roundNumber(setWon / setLoses, 3)
+      };
+    });
+
+    const sortedCombinedMatchStats = combinedMatchStats.sort(predicate(
+      {name: 'wins', reverse: true}, 
+      'loses', 
+      {name: 'setRatio', reverse: true},
+      {name: 'pointsDifference', reverse: true}
+    ));
+
+    return sortedCombinedMatchStats;
+};
+
 export const getSummaryStats = (sortedIndividualStats) => {
     if (typeof sortedIndividualStats !== 'object') {
       return null;
